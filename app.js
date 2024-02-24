@@ -5,7 +5,7 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 app.get('/version', (req, res) => {
-  res.send('11') // change this string to ensure a new version deployed
+  res.send('12') // change this string to ensure a new version deployed
 })
 
 app.get('/health', (req, res) => {
@@ -13,8 +13,8 @@ app.get('/health', (req, res) => {
 })
 
 app.get('/ping', (req, res) => {
-  // res.json({ message: 'pong' })
-  res.status(500).send('Internal Server Error')
+  res.json({ message: 'pong' })
+  // res.status(500).send('Internal Server Error')
 })
 
 // app.get('/health', () => {
