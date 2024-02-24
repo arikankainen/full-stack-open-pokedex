@@ -56,7 +56,7 @@ jobs:
           severity: info
           color: '#00aa00'
           text: A new version of Pokedex deployed
-          description: to https://full-stack-open-pokedex-arikainen.fly.dev by ${{ github.event.commits[0].committer.username }}
+          description: to https://full-stack-open-pokedex-arikainen.fly.dev by ${{ github.event.commits[0].author.name }}
           details: ''
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
@@ -67,7 +67,7 @@ jobs:
           severity: error
           color: '#aa0000'
           text: Build failed
-          description: commit ${{ github.event.commits[0].url }} by ${{ github.event.commits[0].committer.username }} broke the build :(
+          description: commit ${{ github.event.commits[0].url }} by ${{ github.event.commits[0].author.name }} broke the build :(
           details: ''
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
