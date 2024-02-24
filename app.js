@@ -12,8 +12,8 @@ app.get('/health', (req, res) => {
   res.send('ok')
 })
 
-app.get('/periodic_health', (req, res) => {
-  // res.send('ok')
+app.get('/ping', (req, res) => {
+  // res.json({ message: 'pong' })
   res.status(500).send('Internal Server Error')
 })
 
