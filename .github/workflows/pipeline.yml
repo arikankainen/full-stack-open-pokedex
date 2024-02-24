@@ -4,43 +4,36 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches: [main]
     types: [opened, synchronize]
+
 jobs:
-  a_test_job:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: github context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: commits
-        env:
-          COMMITS: ${{ toJson(github.event.commits) }}
-        run: echo "$COMMITS"
-      - name: commit messages
-        env:
-          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
-        run: echo "$COMMIT_MESSAGES"
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     env:
       COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
             node-version: '20'
+
       - name: Install dependencies
         run: npm install
+
       - name: Check style
         run: npm run eslint
+
       - name: Build
         run: npm run build
+
       - name: Test
         run: npm run test
+
       - name: e2e tests
         uses: cypress-io/github-action@v5
         with:
@@ -48,21 +41,48 @@ jobs:
           start: npm run start-prod
           browser: chrome
           wait-on: http://localhost:5000
+
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: deploy
         if: ${{ github.event_name == 'push' && !contains(join(env.COMMIT_MESSAGES, ' '), '#skip') }}
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Deployment success
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()
+        with:
+          severity: info
+          color: '#00aa00'
+          text: A new version of Pokedex deployed
+          description: to https://full-stack-open-pokedex-arikainen.fly.dev by ${{ github.event.commits[0].committer.username }}
+          details: ''
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Deployment failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: error
+          color: '#aa0000'
+          text: Build failed
+          description: commit ${{ github.event.commits[0].url }} by ${{ github.event.commits[0].committer.username }} broke the build :(
+          details: ''
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
   tag_release:
     needs: [simple_deployment_pipeline]
     if: ${{ github.event_name == 'push' && !contains(join(toJson(github.event.commits.*.message), ' '), '#skip') }}
     runs-on: ubuntu-20.04
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
             node-version: '20'
+
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.67.0
         env:
