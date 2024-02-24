@@ -10,27 +10,6 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  a_test_job:
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: github context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
-      - name: commits
-        env:
-          COMMITS: ${{ toJson(github.event.commits) }}
-        run: echo "$COMMITS"
-
-      - name: commit messages
-        env:
-          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
-        run: echo "$COMMIT_MESSAGES"
-
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     env:
@@ -89,7 +68,7 @@ jobs:
           severity: info
           color: '#00aa00'
           text: A new version of Pokedex deployed
-          description: to https://full-stack-open-pokedex-arikainen.fly.dev by ${{ github.event.commits[0].author.name }}
+          description: to https://full-stack-open-pokedex-arikainen.fly.dev by ${{ github.event.commits[0].committer.username }}
           details: ''
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
@@ -100,7 +79,7 @@ jobs:
           severity: error
           color: '#aa0000'
           text: Build failed
-          description: commit ${{ github.event.commits[0].url }} by ${{ github.event.commits[0].author.name }} broke the build :(
+          description: commit ${{ github.event.commits[0].url }} by ${{ github.event.commits[0].committer.username }} broke the build :(
           details: ''
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
